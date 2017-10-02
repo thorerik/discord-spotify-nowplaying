@@ -1,29 +1,29 @@
-var DiscordClient = require('discord.io');
+var Discord = require('discord.js');
 var nodeSpotifyWebHelper = require('node-spotify-webhelper');
 
 var spotify = new nodeSpotifyWebHelper.SpotifyWebHelper();
 var config = require("./config");
-var bot = new DiscordClient({
-    autorun: true,
-    email: config.email,
-    password: config.password,
-    username: config.username,
-    token: config.token
+var bot = new Discord.Client({
+    autorun: true
 });
 
+var connected = false;
+
 bot.on('ready', function () {
-    console.log(bot.username + " - (" + bot.id + ")");
+    connected = true;
     bot.on('disconnected', function () {
+        connected = false;
         setTimeout(function () {
             bot.connect();
         }, 5000);
     });
-
+    console.log(bot.user.username + " - (" + bot.user.id + ")");
 });
 
 var curr = "";
 // get the name of the song which is currently playing 
 setInterval(function () {
+    if(!connected) return;
     spotify.getStatus(function (err, res) {
         if (err) {
             return console.error(err);
@@ -31,30 +31,24 @@ setInterval(function () {
         if (res.playing) {
             var next = "♪" + res.track.track_resource.name + " - " + res.track.artist_resource.name + "♪";
             if (next == curr) return;
-            //console.log(next);
-            bot.setPresence({
-                game: next
+            console.log(next);
+            bot.user.setPresence({
+                game: {
+                    name: next,
+                    type: 0
+                }
             });
             curr = next;
         } else {
             curr = "";
-            bot.setPresence({
-                game: ""
+            bot.user.setPresence({
+                game: {
+                    name: "",
+                    type: 0
+                }
             });
         }
     })
 }, 3000);
 
-bot.on('message', function (_user, userID, channelID, message, rawEvent) {
-    if (message == (bot.username + ", music link?")) {
-        spotify.getStatus(function (err, res) {
-            if (err) {
-                return console.error(err);
-            }
-            bot.sendMessage({
-                to: channelID,
-                message: "http://open.spotify.com/" + res.track.track_resource.uri.split(":").slice(1).join("/")
-            })
-        });
-    }
-});
+bot.login(config.token).catch(console.error);
