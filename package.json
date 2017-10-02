@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "discord.js": "^11.2.1"
+    "discord.js": "^11.2.1",
+    "node-spotify-webhelper": "^0.0.6"
   }
 }
