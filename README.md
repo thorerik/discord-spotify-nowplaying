@@ -1,3 +1,6 @@
+# Abandoned!
+This project is abandoned, do not use!
+
 # Initialization
 
 Requires `discord.io` and `node-spotify-webhelper` and Python >= v2.5.0 & < 3.0.0 for node-gyp.
